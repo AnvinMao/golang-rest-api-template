@@ -1,12 +1,11 @@
 package service
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"golang-rest-api-template/database"
 	"golang-rest-api-template/internal/model"
 	"golang-rest-api-template/pkg/auth"
+	"golang-rest-api-template/pkg/database"
 	"strings"
 	"time"
 )
@@ -20,14 +19,12 @@ type UserService interface {
 type userService struct {
 	DB    database.Database
 	Redis database.Redis
-	Ctx   *context.Context
 }
 
-func NewUserService(db database.Database, redis database.Redis, ctx *context.Context) UserService {
+func NewUserService(db database.Database, redis database.Redis) UserService {
 	return &userService{
 		DB:    db,
 		Redis: redis,
-		Ctx:   ctx,
 	}
 }
 
@@ -71,7 +68,7 @@ func (serv *userService) Fetch(query *model.UserQuery) ([]model.User, error) {
 func (serv *userService) GetUser(id int64) (*model.User, error) {
 	var user model.User
 	cacheKey := fmt.Sprintf("user.%d", id)
-	cacheUser, err := serv.Redis.Get(*serv.Ctx, cacheKey).Result()
+	cacheUser, err := serv.Redis.Get(cacheKey).Result()
 	if err == nil {
 		err := json.Unmarshal([]byte(cacheUser), &user)
 		if err == nil {
@@ -84,7 +81,7 @@ func (serv *userService) GetUser(id int64) (*model.User, error) {
 	}
 
 	if serialized, err := json.Marshal(user); err == nil {
-		serv.Redis.Set(*serv.Ctx, cacheKey, serialized, time.Minute)
+		serv.Redis.Set(cacheKey, serialized, time.Minute)
 	}
 
 	return &user, nil

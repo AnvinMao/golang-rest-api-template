@@ -1,15 +1,14 @@
 package router
 
 import (
-	"context"
-	"golang-rest-api-template/database"
 	"golang-rest-api-template/env"
 	"golang-rest-api-template/pkg/auth"
+	"golang-rest-api-template/pkg/database"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(r *gin.Engine, db database.Database, redis database.Redis, ctx *context.Context, env *env.Env) {
+func RegisterRoutes(r *gin.Engine, db database.Database, redis database.Redis, env *env.Env) {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
@@ -19,5 +18,5 @@ func RegisterRoutes(r *gin.Engine, db database.Database, redis database.Redis, c
 	}
 
 	apiRouter := r.Group("/api")
-	RegisterUserRoutes(apiRouter, db, redis, ctx, jwt)
+	RegisterUserRoutes(apiRouter, db, redis, jwt)
 }

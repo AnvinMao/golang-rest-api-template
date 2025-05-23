@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"golang-rest-api-template/database"
 	"golang-rest-api-template/env"
 	"golang-rest-api-template/internal/router"
+	"golang-rest-api-template/pkg/database"
 	"log"
 	"net/http"
 
@@ -13,14 +13,13 @@ import (
 
 func main() {
 	env := env.NewEnv()
-	db := &database.GormDatabase{DB: database.NewDatabase(env)}
-	redis := database.NewRedisClient(env)
-
 	ctx := context.Background()
+	db := &database.GormDatabase{DB: database.NewDatabase(env)}
+	redis := database.NewRedisClient(ctx, env)
 
 	gin.SetMode(env.AppEnv)
 	r := gin.New()
-	router.RegisterRoutes(r, db, redis, &ctx, env)
+	router.RegisterRoutes(r, db, redis, env)
 
 	server := &http.Server{
 		Addr:           env.ServerAddress,
